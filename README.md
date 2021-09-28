@@ -7,7 +7,7 @@ Automatically downloads wallpapers from Reddit to be set as desktop background. 
 ## 🎆 Installation
 1. `git clone https://github.com/thunder04/wallpaper-carousel` or [Download the archive](https://github.com/thunder04/wallpaper-carousel/archive/refs/heads/main.zip)
 2. Move the folder somewhere safe — to not get deleted by accident.
-3. Run the `carousel.ps1` script using PowerShell 7 and follow the "[instructions](https://github.com/thunder04/wallpaper-carousel/blob/main/README.md#parameters)".
+3. Run the `carousel.ps1` script using PowerShell 7 and follow the "[instructions](https://github.com/thunder04/wallpaper-carousel/blob/main/README.md#-parameters)".
 4. Open Windows Settings and go to `Personalization -> Background`
 5. Change Background type to "Slideshow"
 6. Choose the folder you chose during step 3
