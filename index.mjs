@@ -91,7 +91,7 @@ const argv = parseArguments(process.argv.slice(2), {
 
 // ! Argument parsing ! 
 
-const subreddits = typeof subreddits === 'string' ? subreddits.split(/,+/g) : DEFAULT_SUBREDDITS
+const subreddits = typeof argv.subreddits === 'string' ? argv.subreddits.split(/,+/g) : DEFAULT_SUBREDDITS
     , lifetime = (+argv.lifetime || 4) * 86_400_000
     , interval = (+argv.interval || 60) * 60_000
     , wallpaperFolder = argv.wallpaper_folder
