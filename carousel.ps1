@@ -12,8 +12,8 @@ $TimeframeTypes = ('hour', 'day', 'week', 'month', 'year', 'all')
 $ValidFileTypes = ('jpg', 'jpeg', 'webp', 'png', 'bmp')
 
 if ( -not $WallpaperFolder ) { throw 'Parameter WallpaperFolder is required' }
-if ( -not $ListingTypes.Contains($Listing)) { throw "Unknown option $($Listing) for Listing. Available listing types: $($ListingTypes -join ', ')" }
-if ( -not $TimeframeTypes.Contains($Timeframe)) { throw "Unknown option $($Timeframe) for Timeframe. Available timeframe types: $($TimeframeTypes -join ', ')" }
+if ( -not $ListingTypes.Contains($Listing)) { throw "Unknown option $Listing for Listing. Available listing types: $($ListingTypes -join ', ')" }
+if ( -not $TimeframeTypes.Contains($Timeframe)) { throw "Unknown option $Timeframe for Timeframe. Available timeframe types: $($TimeframeTypes -join ', ')" }
 
 if ($UpdateSchedule) {
     if (Get-ScheduledTask WallpaperCarousel -ErrorAction Ignore) {
@@ -45,12 +45,23 @@ $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForE
     -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
         -and -not $_.is_video -and -not $_.spoiler -and $_.url `
         -and $ValidFileTypes.Contains($_.url.Split('.')[-1])
-} | Select-Object url, created, subreddit
-
-foreach ($post in $SubredditPosts) {
-    Write-Host $post
-    Write-Host (Split-Path $post.url -Leaf)
 }
 
-# Call it before you save the images
-# New-Item $WallpaperFolder -ItemType Directory -Force | Out-Null
+New-Item $WallpaperFolder -ItemType Directory -Force | Out-Null
+$ExistingFiles = Get-ChildItem $WallpaperFolder -Name
+
+foreach ($post in $SubredditPosts) {
+    $Filename = Split-Path $post.url -Leaf
+
+    if ($ExistingFiles.Contains($Filename)) {
+        Write-Debug "Found $Filename in $WallpaperFolder, skipping..."
+        Continue
+    }
+    
+    try { 
+        Invoke-WebRequest $post.url -OutFile $WallpaperFolder\$Filename
+        Write-Debug "Downloaded $wikWallpaperFolder/$filename"
+    }
+    
+    catch { Write-Error "An error occurred while downloading $filename from $($post.url)" }
+}
