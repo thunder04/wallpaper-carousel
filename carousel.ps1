@@ -1,16 +1,3 @@
-<#
-
-## General ##
-- This script is intended to be used with Windows' slideshows (Settings -> Personalization -> Background)
-- TODO: Add wallpaper sweeping
-
-## Parameters ##
-- WallpaperFolder: The path where new wallpapers are going to be stored.
-- Subreddits: The list of subreddits where the script will fetch images from.
-- Interval: How quickly it will fetch new wallpapers.
-
-#>
-
 param (
     [string] $WallpaperFolder,
     [array] $Subreddits = ("Amoledbackgrounds", "wallpapers", "wallpaper"),
