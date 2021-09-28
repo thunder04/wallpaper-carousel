@@ -40,18 +40,12 @@ if ($UpdateSchedule) {
 }
 
 $SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=1"
-$SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data }
+$SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children 
+<# #> | ForEach-Object { $_.data } 
+<# #> | Where-Object { -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 -and -not $_.spoiler -and $_.url }
+<# #> | Select-Object url, created
 
 Write-Host $SubredditPosts
-
-<#
-banned_by
-over_18
-removed_by
-spoiler
-url
-created
-#>
 
 # Call it before you save the images
 # New-Item $WallpaperFolder -ItemType Directory -Force | Out-Null
