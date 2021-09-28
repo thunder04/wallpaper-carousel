@@ -9,6 +9,7 @@ param (
 
 $ListingTypes = ('controversial', 'best', 'hot', 'new', 'random', 'rising', 'top')
 $TimeframeTypes = ('hour', 'day', 'week', 'month', 'year', 'all')
+$ValidFileTypes = ('jpg', 'jpeg', 'webp', 'png', 'bmp')
 
 if ( -not $WallpaperFolder ) { throw 'Parameter WallpaperFolder is required' }
 if ( -not $ListingTypes.Contains($Listing)) { throw "Unknown option $($Listing) for Listing. Available listing types: $($ListingTypes -join ', ')" }
@@ -39,13 +40,17 @@ if ($UpdateSchedule) {
     exit
 }
 
-$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=1"
-$SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children 
-<# #> | ForEach-Object { $_.data } 
-<# #> | Where-Object { -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 -and -not $_.spoiler -and $_.url }
-<# #> | Select-Object url, created
+$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=5"
+$SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object { 
+    -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
+        -and -not $_.is_video -and -not $_.spoiler -and $_.url `
+        -and $ValidFileTypes.Contains($_.url.Split('.')[-1])
+} | Select-Object url, created, subreddit
 
-Write-Host $SubredditPosts
+foreach ($post in $SubredditPosts) {
+    Write-Host $post
+    Write-Host (Split-Path $post.url -Leaf)
+}
 
 # Call it before you save the images
 # New-Item $WallpaperFolder -ItemType Directory -Force | Out-Null
