@@ -6,7 +6,8 @@ param (
     [TimeSpan] $Interval = (New-TimeSpan -Hours 1),
     [switch]   $DontUpdateSchedule,
     [string]   $Timeframe = 'all',
-    [string]   $Listing = 'hot'
+    [string]   $Listing = 'hot',
+    [int]      $FetchLimit = 7
 )
 
 $ListingTypes = ('controversial', 'best', 'hot', 'new', 'random', 'rising', 'top')
@@ -42,7 +43,7 @@ if (-not $DontUpdateSchedule) {
     exit
 }
 
-$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=5"
+$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=$FetchLimit"
 $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object {
     -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
         -and -not $_.is_video -and -not $_.spoiler -and $_.url `

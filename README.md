@@ -30,4 +30,3 @@ For example, this invocation — `pwsh.exe .\carousel.ps1 -WallpaperFolder "\Wal
 ## 💡 TODO
 - Add wallpaper sweeping.
 - Filter Vertical wallpapers.
-- Raise the concurrent wallpaper fetching (5 currently) and make it customizable.
