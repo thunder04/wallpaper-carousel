@@ -3,7 +3,7 @@ param (
     [string]   $WFolder,
     [switch]   $NoSDL,
 
-    [TimeSpan] $Interval = (New-TimeSpan -Hours 1),
+    [TimeSpan] $Interval = (New-TimeSpan -Days 1),
     [string]   $Timeframe = 'week',
     [string]   $Listing = 'top',
     [int]      $FetchLimit = 10,
