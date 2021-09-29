@@ -29,4 +29,3 @@ For example, this invocation — `pwsh.exe .\carousel.ps1 -WallpaperFolder "\Wal
 
 ## 💡 TODO
 - Add wallpaper sweeping.
-- Filter Vertical wallpapers.
