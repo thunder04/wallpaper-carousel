@@ -54,7 +54,7 @@ if (-not $NoSDL) {
 
     $Arg = (
         "-WindowStyle Hidden",
-        "-Command $(Split-Path $PSCommandPath -Leaf)",
+        "-Command .\$(Split-Path $PSCommandPath -Leaf)",
         $WFolder,
         "-NoSDL",
         "-Listing $Listing",
