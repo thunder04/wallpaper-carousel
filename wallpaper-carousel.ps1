@@ -63,7 +63,7 @@ if (-not $NoSDL) {
     ) -join ' '
 
     Register-ScheduledTask WallpaperCarousel `
-        -Settings (New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6 -RunOnlyIfIdle -IdleDuration 00:00:01 -RunOnlyIfNetworkAvailable) `
+        -Settings (New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6 -RunOnlyIfNetworkAvailable) `
         -Action (New-ScheduledTaskAction "pwsh.exe" -Argument $Arg -WorkingDirectory $PSScriptRoot) `
         -Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval $Interval) `
         -Force | Out-Null
