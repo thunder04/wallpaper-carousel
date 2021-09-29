@@ -2,12 +2,23 @@ param (
     [Parameter(Position = 0, Mandatory = $true)]
     [string]   $WallpaperFolder,
 
-    [array]    $Subreddits = ("Amoledbackgrounds", "wallpapers", "wallpaper"),
     [TimeSpan] $Interval = (New-TimeSpan -Hours 1),
     [switch]   $DontUpdateSchedule,
     [string]   $Timeframe = 'all',
     [string]   $Listing = 'hot',
-    [int]      $FetchLimit = 7
+    [int]      $FetchLimit = 7,
+    [array]    $Subreddits = (
+        "Amoledbackgrounds",
+        "VillagePorn",
+        "wallpapers",
+        "EarthPorn",
+        "wallpaper",
+        "BeachPorn",
+        "WaterPorn",
+        "CityPorn",
+        "LakePorn",
+        "SkyPorn"
+    )
 )
 
 $ListingTypes = ('controversial', 'best', 'hot', 'new', 'random', 'rising', 'top')
