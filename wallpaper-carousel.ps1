@@ -1,13 +1,13 @@
 param (
     [Parameter(Position = 0, Mandatory = $true)]
     [string]   $WFolder,
-    [switch]   $DontUpdateSchedule,
+    [switch]   $NoSDL,
 
     [TimeSpan] $Interval = (New-TimeSpan -Hours 1),
     [string]   $Timeframe = 'week',
     [string]   $Listing = 'top',
     [int]      $FetchLimit = 10,
-    [array]    $Subreddits = (
+    [array]    $Subs = (
         "Amoledbackgrounds",
         "VillagePorn",
         "wallpapers",
@@ -47,33 +47,32 @@ function ValidateImage(
     return $true
 }
 
-if (-not $DontUpdateSchedule) {
+if (-not $NoSDL) {
     if (Get-ScheduledTask WallpaperCarousel -ErrorAction Ignore) {
         Unregister-ScheduledTask WallpaperCarousel -Confirm:$false
     }
 
-    $action = New-ScheduledTaskAction "pwsh.exe" -Argument (
-        (
-            "-WindowStyle Hidden",
-            "-Command $PSCommandPath",
-            "-Subreddits $($Subreddits -join ',')",
-            "-WFolder $WFolder",
-            "-Timeframe $Timeframe",
-            "-DontUpdateSchedule",
-            "-Listing $Listing"
-        ) -join ' '
-    )
+    $Arg = (
+        "-WindowStyle Hidden",
+        "-Command $(Split-Path $PSCommandPath -Leaf)",
+        $WFolder,
+        "-NoSDL",
+        "-Listing $Listing",
+        "-Timeframe $Timeframe",
+        "-Subs $($Subs -join ',')"
+    ) -join ' '
 
     Register-ScheduledTask WallpaperCarousel `
+        -Settings (New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6 -RunOnlyIfIdle -IdleDuration 00:00:01 -RunOnlyIfNetworkAvailable) `
+        -Action (New-ScheduledTaskAction "pwsh.exe" -Argument $Arg -WorkingDirectory $PSScriptRoot) `
         -Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval $Interval) `
-        -Settings (New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6) `
-        -Action $action -Force | Out-Null
+        -Force | Out-Null
 
     Write-Host "Added Task Schedule. Remove it by running `"Unregister-ScheduledTask WallpaperCarousel -Confirm:`$false`""
     exit
 }
 
-$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subreddits | Get-Random).json?listing=$Listing&t=$Timeframe&limit=$FetchLimit"
+$SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subs | Get-Random).json?listing=$Listing&t=$Timeframe&limit=$FetchLimit"
 $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object {
     -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
         -and -not $_.is_video -and -not $_.spoiler -and $_.url `
