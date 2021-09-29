@@ -1,6 +1,6 @@
 param (
     [Parameter(Position = 0, Mandatory = $true)]
-    [string]   $WallpaperFolder,
+    [string]   $WFolder,
     [switch]   $DontUpdateSchedule,
 
     [TimeSpan] $Interval = (New-TimeSpan -Hours 1),
@@ -39,11 +39,11 @@ $MinW = if ($ScreenRes.Width -gt 1280) { $ScreenRes.Width - ($ScreenRes.Width * 
 
 function ValidateImage(
     [Parameter(Position = 0)] [string] $Filename,
-    [int] $Height,
-    [int] $Width
+    [int] $H,
+    [int] $W
 ) {
-    if (($Width -lt $MinW ) -or ($Height -lt $MinH)) { Write-Debug "$filename's image resolution is too small for this screen. Skipping..."; return $false }
-    elseif ($Height -gt $Width) { Write-Debug "$Filename seems to be a mobile wallpaper. Skipping..."; return $false }
+    if (($W -lt $MinW) -or ($H -lt $MinH)) { Write-Debug "$filename's image resolution is too small for this screen. Skipping..."; return $false }
+    elseif ($H -gt $W) { Write-Debug "$Filename seems to be a mobile wallpaper. Skipping..."; return $false }
     return $true
 }
 
@@ -57,7 +57,7 @@ if (-not $DontUpdateSchedule) {
             "-WindowStyle Hidden",
             "-Command $PSCommandPath",
             "-Subreddits $($Subreddits -join ',')",
-            "-WallpaperFolder $WallpaperFolder",
+            "-WFolder $WFolder",
             "-Timeframe $Timeframe",
             "-DontUpdateSchedule",
             "-Listing $Listing"
@@ -80,24 +80,24 @@ $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForE
         -and $FileTypes.Contains($_.url.Split('.')[-1])
 }
 
-New-Item $WallpaperFolder -ItemType Directory -Force | Out-Null
-$ExistingFiles = Get-ChildItem $WallpaperFolder -Name
+New-Item $WFolder -ItemType Directory -Force | Out-Null
+$Existing = Get-ChildItem $WFolder -Name
 
-foreach ($post in $SubredditPosts) {
-    $Filename = Split-Path $post.url -Leaf
+foreach ($Post in $SubredditPosts) {
+    $Filename = Split-Path $Post.url -Leaf
 
-    if ($ExistingFiles -and $ExistingFiles.Contains($Filename)) {
-        Write-Debug "$WallpaperFolder\$filename already exists. Skipping..."
-        Continue
+    if ($Existing -and $Existing.Contains($Filename)) {
+        Write-Debug "$WFolder\$filename already exists. Skipping..."
+        continue
     }
 
-    if ($post.title -imatch $ResPattern -and -not (ValidateImage $Filename -Height $Matches.Height -Width $Matches.Width)) { Continue }
+    if ($Post.title -imatch $ResPattern -and -not (ValidateImage $Filename -H $Matches.Height -W $Matches.Width)) { continue }
 
-    try { $Image = New-Object System.Drawing.Bitmap ((Invoke-WebRequest $post.url).RawContentStream) }
-    catch { Write-Error "An error occurred while processing $filename from $($post.url)"; Continue }
+    try { $Image = New-Object System.Drawing.Bitmap ((Invoke-WebRequest $Post.url).RawContentStream) }
+    catch { Write-Error "An error occurred while processing $filename from $($Post.url)"; continue }
 
-    if (-not (ValidateImage $Filename -Height $Image.Height -Width $Image.Width)) { Continue }
+    if (-not (ValidateImage $Filename -H $Image.Height -W $Image.Width)) { continue }
 
-    $Image.Save("$WallpaperFolder\$Filename")
-    Write-Debug "Saved $WallpaperFolder\$filename ($($post.subreddit))"
+    $Image.Save("$WFolder\$Filename")
+    Write-Debug "Saved $WFolder\$filename ($($Post.subreddit))"
 }
