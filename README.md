@@ -26,5 +26,8 @@ For example, this invocation — `pwsh.exe .\carousel.ps1 \Wallpapers -Subs wall
 - __Create a folder__ in `\Wallpapers` (Also known as `C:\Wallpapers`)
 - __Pick a subreddit__ randomly from `wallpapers`, `SkyPorn` and `FoodPorn` and fetch 10 SFW images __every 1 day__.
 
+## 🚨 The PowerShell window flashes, what can I do?
+[Nothing](https://github.com/PowerShell/PowerShell/issues/3028#issuecomment-275212445), yet, hopefully. Try to disable the animations/effects from the System Settings ¯\\\_(ツ)\_/¯
+
 ## 💡 TODO
 - Add wallpaper sweeping.
