@@ -90,8 +90,8 @@ if ($Mode -eq 0) {
 elseif ($Mode -eq 1) {
     $SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subs | Get-Random).json?listing=$Listing&t=$Timeframe&limit=$Limit"
     $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object {
-        -and -not $_.is_video -and -not $_.spoiler -and $_.url `
-            -not $_.banned_by -and -not $_.removed_by `
+        -not $_.is_video -and -not $_.spoiler -and $_.url `
+            -and -not $_.banned_by -and -not $_.removed_by `
             -and $FileTypes.Contains('.' + $_.url.Split('.')[-1])
     }
 
