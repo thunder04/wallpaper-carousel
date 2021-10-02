@@ -2,10 +2,12 @@
 Automatically downloads wallpapers from Reddit to be set as desktop background. Windows only <sup>(because I can't test it on other platforms)</sup>
 
 ## ✨ Features
-- Advanced wallpaper filter (mobile & small wallpaper filtering)
 - Automatic wallpaper sweeping
-- [Customizable](https://github.com/thunder04/wallpaper-carousel/blob/main/README.md#-parameters)
-- NSFW wallpapers [**Disabled by default**]
+- Multiple subreddits support
+- Mobile wallpaper filtering
+- Small wallpaper filtering
+- NSFW wallpaper support [**Disabled by default**]
+- [Advanced Customization](https://github.com/thunder04/wallpaper-carousel/blob/main/README.md#-parameters)
 
 ## 📝 Requirements
 - [PowerShell 7.x](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.1) (needs to be added to PATH)
@@ -27,7 +29,7 @@ Automatically downloads wallpapers from Reddit to be set as desktop background. 
 - `-SweepInterval [TimeSpan]`: The interval between sweeping. [Default: `7 days`]
 - `-TTL [TimeSpan]`: The maximum age of a wallpaper. [Default: `7 days`]
 - `-Listing [controversial|best|hot|new|random|rising|top]`: The ordering type of the posts. [Default: `top`]
-- `-Timeframe [hour|day|week|month|year|all]`: The time frame of the subreddit's posts. [Default: `week`]
+- `-Timeframe [hour|day|week|month|year|all]`: The time frame of the subreddit's posts. [Default: `month`]
 - `-Limit [int]`: The number of posts the script will fetch from. [Default: `10`]
 - `-NSFW [Switch]`: If included, it allows NSFW posts to be used as wallpaper. [Default: `false`]
 

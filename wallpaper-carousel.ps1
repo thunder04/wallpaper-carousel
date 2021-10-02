@@ -5,8 +5,8 @@ param (
     [Parameter(Position = 1, Mandatory = $false)]
     [array]    $Subs = (
         "Amoledbackgrounds",
+        "wallpaperdump",
         "VillagePorn",
-        "wallpapers",
         "EarthPorn",
         "wallpaper",
         "BeachPorn",
@@ -23,7 +23,7 @@ param (
     [TimeSpan] $Interval = (New-TimeSpan -Days 1),
     [TimeSpan] $TTL = (New-TimeSpan -Days 7),
 
-    [string]   $Timeframe = 'week',
+    [string]   $Timeframe = 'month',
     [string]   $Listing = 'top',
     [int]      $Limit = 10,
     [Switch]   $NSFW
