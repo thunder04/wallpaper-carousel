@@ -25,7 +25,8 @@ param (
 
     [string]   $Timeframe = 'week',
     [string]   $Listing = 'top',
-    [int]      $Limit = 10
+    [int]      $Limit = 10,
+    [Switch]   $NSFW
 )
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -89,8 +90,8 @@ if ($Mode -eq 0) {
 elseif ($Mode -eq 1) {
     $SubredditData = Invoke-WebRequest -Uri "https://www.reddit.com/r/$($Subs | Get-Random).json?listing=$Listing&t=$Timeframe&limit=$Limit"
     $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object {
-        -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
-            -and -not $_.is_video -and -not $_.spoiler -and $_.url `
+        -and -not $_.is_video -and -not $_.spoiler -and $_.url `
+            -not $_.banned_by -and -not $_.removed_by `
             -and $FileTypes.Contains('.' + $_.url.Split('.')[-1])
     }
 
@@ -98,6 +99,10 @@ elseif ($Mode -eq 1) {
     $Existing = Get-ChildItem $Dir -Name
 
     foreach ($Post in $SubredditPosts) {
+        if (-not $NSFW -and $Post.over_18) {
+            continue
+        }
+
         $Filename = Split-Path $Post.url -Leaf
 
         if ($Existing -and $Existing.Contains($Filename)) {
