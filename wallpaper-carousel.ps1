@@ -19,7 +19,10 @@ param (
     [Parameter(Position = 2, Mandatory = $false)]
     [int]      $Mode = 0, # 0: Schedule, 1: Fetch, 2: Sweep
 
+    [TimeSpan] $SweepInterval = (New-TimeSpan -Days 7),
     [TimeSpan] $Interval = (New-TimeSpan -Days 1),
+    [TimeSpan] $TTL = (New-TimeSpan -Days 7),
+
     [string]   $Timeframe = 'week',
     [string]   $Listing = 'top',
     [int]      $Limit = 10
@@ -38,9 +41,7 @@ if ( -not $ListingOptions.Contains($Listing)) { throw "Unknown option $Listing f
 
 $ResPattern = '[[({]\s*(?<Width>\d+)\s*x\s*(?<Height>\d+)\s*[\])}]'
 $ScreenRes = ([System.Windows.Forms.Screen]::PrimaryScreen).Bounds
-$FileTypes = ('jpg', 'jpeg', 'webp', 'png', 'bmp')
-#$SweepInterval = (New-TimeSpan -Days 2)
-#$FileAge = (New-TimeSpan -Days 4)
+$FileTypes = ('.jpg', '.jpeg', '.webp', '.png', '.bmp')
 
 $MinH = if ($ScreenRes.Height -gt 720) { $ScreenRes.Height - ($ScreenRes.Height * 0.15) } else { $ScreenRes.Height }
 $MinW = if ($ScreenRes.Width -gt 1280) { $ScreenRes.Width - ($ScreenRes.Width * 0.10) } else { $ScreenRes.Width }
@@ -56,9 +57,10 @@ function ValidateImage(
 }
 
 if ($Mode -eq 0) {
-    if (Get-ScheduledTask WallpaperCarousel -ErrorAction Ignore) {
-        Unregister-ScheduledTask WallpaperCarousel -Confirm:$false
-    }
+    Unregister-ScheduledTask WallpaperCarouselSweeper -Confirm:$false -ErrorAction Ignore
+    Unregister-ScheduledTask WallpaperCarousel -Confirm:$false -ErrorAction Ignore
+
+    $Settings = New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6 -RunOnlyIfNetworkAvailable
 
     $Arguments = (
         "-WindowStyle Hidden",
@@ -67,15 +69,21 @@ if ($Mode -eq 0) {
         $Dir, ($Subs -join ','), 1,
         "-Timeframe $Timeframe",
         "-Listing $Listing"
-    ) -join ' '
+    )
+
+    $SweeperArguments = $Arguments[0..1] + ($Dir, "-Mode 2")
 
     Register-ScheduledTask WallpaperCarousel `
-        -Settings (New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -Priority 6 -RunOnlyIfNetworkAvailable) `
-        -Action (New-ScheduledTaskAction "pwsh.exe" -Argument $Arguments -WorkingDirectory $PSScriptRoot) `
+        -Action (New-ScheduledTaskAction "pwsh.exe" -Argument ($Arguments -join ' ') -WorkingDirectory $PSScriptRoot) `
         -Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval $Interval) `
-        -Force | Out-Null
+        -Settings $Settings -Force | Out-Null
+        
+    Register-ScheduledTask WallpaperCarouselSweeper `
+        -Action (New-ScheduledTaskAction "pwsh.exe" -Argument ($SweeperArguments -join ' ') -WorkingDirectory $PSScriptRoot) `
+        -Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval $SweepInterval) `
+        -Settings $Settings -Force | Out-Null
 
-    Write-Host "Added Task Schedule. Remove it by running `"Unregister-ScheduledTask WallpaperCarousel -Confirm:`$false`""
+    Write-Host "Added Task Schedule. Remove it by running `"Unregister-ScheduledTask WallpaperCarousel,WallpaperCarouselSweeper -Confirm:`$false`""
 }
 
 elseif ($Mode -eq 1) {
@@ -83,7 +91,7 @@ elseif ($Mode -eq 1) {
     $SubredditPosts = (ConvertFrom-Json $SubredditData.content).data.children | ForEach-Object { $_.data } | Where-Object {
         -not $_.banned_by -and -not $_.removed_by -and -not $_.over_18 `
             -and -not $_.is_video -and -not $_.spoiler -and $_.url `
-            -and $FileTypes.Contains($_.url.Split('.')[-1])
+            -and $FileTypes.Contains('.' + $_.url.Split('.')[-1])
     }
 
     New-Item $Dir -ItemType Directory -Force | Out-Null
@@ -110,5 +118,16 @@ elseif ($Mode -eq 1) {
 }
 
 elseif ($Mode -eq 2) {
-    #TODO: Add sweeping
+    if (-not (Test-Path -Path $Dir)) {
+        exit
+    }
+
+    $DateTTL = (Get-Date).Add(-$TTL)
+
+    $Files = Get-ChildItem $Dir
+    | Where-Object { ($FileTypes.Contains($_.Extension)) -and ($_.CreationTime -lt $DateTTL) }
+    | ForEach-Object { $_.FullName }
+    
+    Remove-Item $Files -Confirm:$false
+    Write-Debug "Deleted $($Files.Length) file$(if ($Files.Length -cne 1) { 's' })"
 }

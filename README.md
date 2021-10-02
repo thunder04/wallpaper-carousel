@@ -18,6 +18,8 @@ Automatically downloads wallpapers from Reddit to be set as desktop background. 
 - `-Dir [string]`: The path where new wallpapers are going to be saved.
 - `-Subs [array]`: The list of subreddits where the script will fetch images from. [Default: [Click me](https://github.com/thunder04/wallpaper-carousel/blob/main/wallpaper-carousel.ps1#L7-L16)]
 - `-Interval [TimeSpan]`: The interval between script execution. [Default: `1 day`]
+- `-SweepInterval [TimeSpan]`: The interval between sweeping. [Default: `7 days`]
+- `-TTL [TimeSpan]`: The maximum age of a wallpaper. [Default: `7 days`]
 - `-Listing [controversial|best|hot|new|random|rising|top]`: The ordering type of the posts. [Default: `top`]
 - `-Timeframe [hour|day|week|month|year|all]`: The time frame of the subreddit's posts. [Default: `week`]
 - `-Limit [int]`: The number of posts the script will fetch from. [Default: `10`]
@@ -31,6 +33,3 @@ Will create a folder in `C:\Wallpapers` and fetch 10 posts from r/wallpapers or 
 
 ## 🚨 The PowerShell window flashes, what can I do?
 [Nothing](https://github.com/PowerShell/PowerShell/issues/3028#issuecomment-275212445), yet, hopefully. Try to disable the animations/effects from the System Settings ¯\\\_(ツ)\_/¯
-
-## 💡 TODO
-- Add wallpaper sweeping.
