@@ -72,7 +72,7 @@ if ($Mode -eq 0) {
         "-Listing $Listing"
     )
 
-    $SweeperArguments = $Arguments[0..1] + ($Dir, "-Mode 2")
+    $SweeperArguments = $Arguments[0..1] + ($Dir, "-Mode 2", "-TTL $TTL", "-SweepInterval $SweepInterval")
 
     Register-ScheduledTask WallpaperCarousel `
         -Action (New-ScheduledTaskAction "pwsh.exe" -Argument ($Arguments -join ' ') -WorkingDirectory $PSScriptRoot) `
