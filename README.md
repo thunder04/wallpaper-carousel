@@ -2,6 +2,9 @@
 
 Automatically downloads wallpapers from Reddit to be set as desktop background. Windows only (because I can't test it on other platforms)
 
+> [!IMPORTANT]  
+> ARCHIVED: I don't use Windows anymore
+
 ## ✨ Features
 
 - Automatic wallpaper sweeping
